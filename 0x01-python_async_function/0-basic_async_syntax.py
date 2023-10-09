@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """
 0-basic_async_syntax.py
+
+Contains the definition of the wait_random() function which
+displays how to use asyncio package to work with asynchronous
+code in python.
 """
 import asyncio
 import random
+
 
 async def wait_random(max_delay: int = 10) -> float:
     """
