@@ -6,8 +6,9 @@ contains the tests for the functions in the utils.py file
 defined in the current directory
 """
 from parameterized import parameterized
-from utils import access_nested_map
+from utils import access_nested_map, get_json
 import unittest
+import unittest.mock
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -31,3 +32,23 @@ class TestAccessNestedMap(unittest.TestCase):
         """test_access_nested_map_exception test function"""
         with self.assertRaises(KeyError):
             access_nested_map(map, path)
+
+
+class TestGetJson(unittest.TestCase):
+    """
+    test case: Testing the function of the get_json() function
+    """
+    @parameterized.expand([
+        ('http://example.com', {"payload": True}),
+        ('http://holberton.io', {"payload": False})
+    ])
+    @unittest.mock.patch('utils.requests.get', autospec=True)
+    def test_get_json(self, test_url, test_payload, mock_request_get):
+        """test_get_json() test method"""
+        mock_response = unittest.mock.Mock()
+        mock_response.json.return_value = test_payload
+        mock_request_get.return_value = mock_response
+
+        output = get_json(test_url)
+        mock_request_get.assert_called_with(test_url)
+        self.assertEqual(output, test_payload)
