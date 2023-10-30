@@ -114,7 +114,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         """set up the class"""
         cls.get_patcher = patch('requests.get',
                                 side_effect=cls.side_effect,
-                                return_value=None)
+                                return_value=test_payload)
         cls.mock_request_get = cls.get_patcher.start()
 
     @classmethod
@@ -133,4 +133,20 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             mock_response.json.return_value = cls.repos_payload
             return mock_response
         else:
-            return DEFAULT
+            return mock_response
+
+    def test_public_repos(self):
+        """test_public_repos() test method"""
+        reference = GithubOrgClient('google')
+
+        self.assertEqual(reference.public_repos(), self.expected_repos)
+        self.assertEqual(reference.public_repos('NOLICENSE'), [])
+        self.mock_request_get.assert_called()
+
+    def test_public_repos_with_license(self):
+        """test_public_repos_with_license() test method"""
+        reference = GithubOrgClient('google')
+
+        self.assertEqual(reference.public_repos('apache-2.0'),
+                         self.apache2_repos)
+        self.mock_request_get.assert_called()
