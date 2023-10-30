@@ -112,10 +112,9 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """set up the class"""
-        cls.get_patcher = patch('requests.get',
-                                side_effect=cls.get_side_effects,
-                                return_value=cls.repos_payload)
+        cls.get_patcher = patch('requests.get')
         cls.mock_request_get = cls.get_patcher.start()
+        cls.mock_request_get.side_effect = cls.get_side_effects
 
     @classmethod
     def tearDownClass(cls):
