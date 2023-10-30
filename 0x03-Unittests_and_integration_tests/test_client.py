@@ -46,3 +46,45 @@ class TestGithubOrgClient(unittest.TestCase):
             mock_org.return_value = payload
             reference = GithubOrgClient('google')
             self.assertEqual(reference._public_repos_url, payload['repos_url'])
+
+    @patch('client.get_json')
+    def test_public_repos(self, mocked_get_json):
+        """test_public_repos() test method"""
+        payload = [
+            {
+                'id': 1936771,
+                'node_id': 'MDEwOlJlcG9zaXRvcnkxOTM2Nzcx',
+                'name': 'truth',
+                'full_name': 'google/truth',
+            },
+            {
+                'id': 1936772,
+                'node_id': 'MDEwOlJlcG9zaXRvcnkxOTM2Nzcx',
+                'name': 'ruby-openid-apps-discovery',
+                'full_name': 'google/open',
+            },
+            {
+                'id': 1936773,
+                'node_id': 'MDEwOlJlcG9zaXRvcnkxOTM2Nzcx',
+                'name': 'autoparse',
+                'full_name': 'google/autoparse',
+            },
+            {
+                'id': 1936774,
+                'node_id': 'MDEwOlJlcG9zaXRvcnkxOTM2Nzcx',
+                'name': 'anvil-build',
+                'full_name': 'google/anvil',
+            }
+        ]
+        result = ['truth', 'ruby-openid-apps-discovery',
+                  'autoparse', 'anvil-build']
+        context = 'client.GithubOrgClient._public_repos_url'
+        with patch(context, new_callable=PropertyMock) as mocked_repos_url:
+            mocked_repos_url.return_value =\
+              'https://api.github.com/orgs/google/repos'
+            mocked_get_json.return_value = payload
+            reference = GithubOrgClient('google')
+            repo_list = reference.public_repos()
+            self.assertEqual(repo_list, result)
+            mocked_repos_url.assert_called_once()
+            mocked_get_json.assert_called_once()
