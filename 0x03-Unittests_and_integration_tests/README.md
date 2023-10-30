@@ -31,6 +31,8 @@
 
 - [An introduction to mocking in python](https://www.toptal.com/python/an-introduction-to-mocking-in-python)
 
+- [Understanding the Python mock library](https://realpython.com/python-mock-library/)
+
 - [parameterized](https://pypi.org/project/parameterized/)
 
 - [What are Parameterized Tests?](https://medium.com/@suman.maity112/parameterized-tests-8929080901ee)

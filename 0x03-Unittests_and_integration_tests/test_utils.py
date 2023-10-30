@@ -6,9 +6,9 @@ contains the tests for the functions in the utils.py file
 defined in the current directory
 """
 from parameterized import parameterized
-from utils import access_nested_map, get_json
+from utils import access_nested_map, get_json, memoize
+from unittest.mock import patch, Mock
 import unittest
-import unittest.mock
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -42,13 +42,38 @@ class TestGetJson(unittest.TestCase):
         ('http://example.com', {"payload": True}),
         ('http://holberton.io', {"payload": False})
     ])
-    @unittest.mock.patch('utils.requests.get', autospec=True)
+    @patch('utils.requests.get', autospec=True)
     def test_get_json(self, test_url, test_payload, mock_request_get):
         """test_get_json() test method"""
-        mock_response = unittest.mock.Mock()
+        mock_response = Mock()
         mock_response.json.return_value = test_payload
         mock_request_get.return_value = mock_response
 
         output = get_json(test_url)
         mock_request_get.assert_called_with(test_url)
         self.assertEqual(output, test_payload)
+
+
+class TestMemoize(unittest.TestCase):
+    """
+    test case: Testing the utils.memoize decorator
+    """
+    def test_memoize(self):
+        """test_memoize() test method"""
+        class TestClass:
+
+            def a_method(self):
+                return 42
+
+            @memoize
+            def a_property(self):
+                return self.a_method()
+        with patch.object(TestClass, 'a_method') as mock_a_method:
+            mock_a_method.return_value = Mock(return_value=24)
+
+            test_obj = TestClass()
+            output = test_obj.a_property()
+            output = test_obj.a_property()
+
+            mock_a_method.assert_called_once()
+            self.assertEqual(output, 24)
