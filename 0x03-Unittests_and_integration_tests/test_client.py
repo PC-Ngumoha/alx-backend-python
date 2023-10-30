@@ -6,8 +6,10 @@ contains the tests for the functions/classes contained in the
 client.py file
 """
 from client import GithubOrgClient
-from parameterized import parameterized
+from fixtures import TEST_PAYLOAD as test_payload
+from parameterized import parameterized, parameterized_class
 from unittest.mock import patch, Mock, PropertyMock
+import utils
 import unittest
 
 
@@ -97,3 +99,38 @@ class TestGithubOrgClient(unittest.TestCase):
         """test_has_license() test method"""
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected)
+
+
+@parameterized_class(
+    ('org_payload', 'repos_payload', 'expected_repos', 'apache2_repos'),
+    test_payload
+)
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """
+    Integration test: Testing the GithubOrgClient class
+    """
+    @classmethod
+    def setUpClass(cls):
+        """set up the class"""
+        cls.get_patcher = patch('requests.get')
+        cls.mock_request_get = cls.get_patcher.start()
+        cls.mock_request_get.side_effect = cls.get_side_effects
+        cls.mock_request_get.return_value = None
+
+    @classmethod
+    def tearDownClass(cls):
+        """tearing down the class"""
+        cls.get_patcher.stop()
+
+    @classmethod
+    def get_side_effects(cls, url):
+        """get_url_fixtures() side effect method"""
+        mock_response = Mock()
+        if url.endswith('/google'):
+            mock_response.json.return_value = cls.org_payload
+            return mock_response
+        elif url.endswith('/google/repos'):
+            mock_response.json.return_value = cls.repos_payload
+            return mock_response
+        else:
+            return DEFAULT
